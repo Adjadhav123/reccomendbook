@@ -2,57 +2,399 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Recommender System</title>
-    <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            background-color: #121212;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+        }
+        
+        .navbar {
+            background-color: #00a65a;
+            border-radius: 0;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: bold;
+            color: white !important;
+        }
+        
+        .nav.navbar-nav li a {
+            color: white !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav.navbar-nav li a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .page-title {
+            font-size: 50px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .search-container {
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 50px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .form-control {
+            background-color: #2d2d2d;
+            border: none;
+            color: white;
+            height: 50px;
+            font-size: 18px;
+            box-shadow: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            background-color: #333333;
+            box-shadow: 0 0 0 2px #00a65a;
+        }
+        
+        .btn-search {
+            background-color: #00a65a;
+            color: white;
+            border: none;
+            height: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 5px;
+            padding: 10px 30px;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+        
+        .btn-search:hover {
+            background-color: #008d4c;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 166, 90, 0.3);
+        }
+        
+        .book-card {
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            height: 350px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .book-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 166, 90, 0.3);
+        }
+        
+        .book-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .book-card:hover img {
+            transform: scale(1.05);
+        }
+        
+        .book-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: #00a65a;
+        }
+        
+        .book-author {
+            font-style: italic;
+            color: #cccccc;
+        }
+        
+        .error-message {
+            background-color: rgba(255, 87, 87, 0.2);
+            border-left: 4px solid #ff5757;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .error-message i {
+            color: #ff5757;
+            font-size: 24px;
+            margin-right: 15px;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00a65a;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .suggestions-container {
+            position: absolute;
+            width: 100%;
+            background-color: #2d2d2d;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .suggestion-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .suggestion-item:hover {
+            background-color: #00a65a;
+            color: white;
+        }
+        
+        .results-container {
+            margin-top: 30px;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        
+        .no-results i {
+            font-size: 48px;
+            color: #00a65a;
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
-<style>
-    .text-white{
-        color:white
-    }
-</style>
-<body style="background-color:black">
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
 
-    <nav class="navbar" style="background-color:#00a65a">
-        <a class="navbar-brand">My Book recommender</a>
-        <ul class="nav navbar-nav">
-            <li><a href="/">Home</a></li>
-            <li><a href="/recommend">Recommend</a></li>
-            <li><a>Contact</a></li>
-        </ul>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">
+                    <i class="fas fa-book-open"></i> Book Recommender
+                </a>
+            </div>
+            
+            <div class="collapse navbar-collapse" id="navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="/recommend"><i class="fas fa-lightbulb"></i> Recommend</a></li>
+                    <li><a href="#contact"><i class="fas fa-envelope"></i> Contact</a></li>
+                </ul>
+            </div>
+        </div>
     </nav>
 
     <div class="container">
+        <h1 class="page-title">
+            <i class="fas fa-lightbulb"></i> Book Recommendations
+        </h1>
+        
         <div class="row">
-            <div class="col-md-12">
-                <h1 class="text-white" style="font-size:50px">Recommend Books</h1>
-                <form action="/recommend_books" method="post">
-                    <input name="user_input" type="text" class="form-control"><br>
-                    <input type="submit" class="btn btn-lg btn-warning">
-                </form>
-            </div>
-
-            {% if data %}
-
-             {% for i in data %}
-                <div class="col-md-3" style="margin-top:50px">
-                    <div class="card">
-                        <div class="card-body">
-                            <img class="card-img-top" src="{{i[2]}}">
-                            <p class="text-white">{{i[0]}}</p>
-                            <h4 class="text-white">{{i[1]}}</h4>
+            <div class="col-md-8 col-md-offset-2">
+                <div class="search-container">
+                    {% if error %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>{{ error }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <form action="/recommend_books" method="post" id="recommendForm">
+                        <div class="form-group">
+                            <label for="user_input">
+                                <i class="fas fa-search"></i> Enter a book title:
+                            </label>
+                            <div style="position: relative;">
+                                <input name="user_input" id="user_input" type="text" class="form-control" placeholder="Type a book title..." autocomplete="off" required>
+                                <div class="suggestions-container" id="suggestionsContainer"></div>
+                            </div>
                         </div>
+                        <button type="submit" class="btn btn-search btn-block">
+                            <i class="fas fa-magic"></i> Get Recommendations
+                        </button>
+                    </form>
+                </div>
+                
+                {% if data %}
+                <div class="results-container">
+                    <h3><i class="fas fa-thumbs-up"></i> Recommended Books</h3>
+                    <div class="row" id="resultsContainer">
+                        {% for i in data %}
+                        <div class="col-md-6">
+                            <div class="book-card">
+                                <img class="img-responsive" src="{{i[2]}}" alt="{{i[0]}}">
+                                <h4 class="book-title">{{i[0]}}</h4>
+                                <p class="book-author">by {{i[1]}}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
-             {% endfor %}
-
-            {% endif %}
-
-
-
-
+                {% endif %}
+                
+                {% if no_results %}
+                <div class="no-results">
+                    <i class="fas fa-search"></i>
+                    <h3>No recommendations found</h3>
+                    <p>Try searching for a different book title.</p>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Show loading overlay when page loads
+            $('#loadingOverlay').addClass('active');
+            
+            // Hide loading overlay when page is fully loaded
+            $(window).on('load', function() {
+                setTimeout(function() {
+                    $('#loadingOverlay').removeClass('active');
+                }, 500);
+            });
+            
+            // Show loading overlay when form is submitted
+            $('#recommendForm').submit(function() {
+                $('#loadingOverlay').addClass('active');
+            });
+            
+            // Show loading overlay when navigating to another page
+            $('a').click(function() {
+                $('#loadingOverlay').addClass('active');
+            });
+            
+            // Autocomplete functionality
+            $('#user_input').on('input', function() {
+                const query = $(this).val().trim();
+                
+                if (query.length > 2) {
+                    // Fetch suggestions from the server
+                    $.ajax({
+                        url: '/get_suggestions',
+                        method: 'GET',
+                        data: { query: query },
+                        success: function(data) {
+                            if (data.suggestions && data.suggestions.length > 0) {
+                                const suggestionsHtml = data.suggestions.map(suggestion => 
+                                    `<div class="suggestion-item">${suggestion}</div>`
+                                ).join('');
+                                
+                                $('#suggestionsContainer').html(suggestionsHtml);
+                                $('#suggestionsContainer').show();
+                                
+                                // Handle suggestion click
+                                $('.suggestion-item').click(function() {
+                                    $('#user_input').val($(this).text());
+                                    $('#suggestionsContainer').hide();
+                                });
+                            } else {
+                                $('#suggestionsContainer').hide();
+                            }
+                        }
+                    });
+                } else {
+                    $('#suggestionsContainer').hide();
+                }
+            });
+            
+            // Hide suggestions when clicking outside
+            $(document).click(function(e) {
+                if (!$(e.target).closest('#user_input, #suggestionsContainer').length) {
+                    $('#suggestionsContainer').hide();
+                }
+            });
+            
+            // Add animation to book cards
+            $('.book-card').each(function(index) {
+                $(this).css({
+                    'animation': 'fadeIn 0.5s ease forwards',
+                    'animation-delay': (index * 0.1) + 's',
+                    'opacity': '0'
+                });
+            });
+            
+            // Define the fadeIn animation
+            $('<style>')
+                .prop('type', 'text/css')
+                .html(`
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(20px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                `)
+                .appendTo('head');
+        });
+    </script>
 </body>
 </html>
