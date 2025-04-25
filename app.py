@@ -2,10 +2,11 @@ from flask import Flask, render_template, request, jsonify
 import pickle
 import numpy as np
 
-popular_df = pickle.load(open('popular.pkl','rb'))
-pt = pickle.load(open('pt.pkl','rb'))
-books = pickle.load(open('books.pkl','rb'))
-similarity_score = pickle.load(open('similarity_score.pkl','rb'))
+import os
+popular_df = pickle.load(open(os.path.join('models', 'popular.pkl'), 'rb'))
+pt = pickle.load(open(os.path.join('models', 'pt.pkl'), 'rb'))
+books = pickle.load(open(os.path.join('models', 'books.pkl'), 'rb'))
+similarity_score = pickle.load(open(os.path.join('models', 'similarity_score.pkl'), 'rb'))
 
 app = Flask(__name__)
 
